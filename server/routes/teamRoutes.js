@@ -18,7 +18,7 @@ const upload = multer({
     }
 });
 
-// Get all teams - gunakan path "/" karena sudah di-mount di '/api/teams'
+// Get all teams
 router.get('/', (req, res) => {
     db.all(`SELECT * FROM teams`, [], (err, rows) => {
         if (err) return res.status(500).json({ message: 'Gagal mengambil data tim' });
@@ -59,7 +59,7 @@ router.delete('/:id', (req, res) => {
 
             // Hapus file gambar jika ada
             if (row && row.image) {
-                const imagePath = path.join(__dirname, '..', row.image);
+                const imagePath = path.join(process.cwd(), 'server', row.image);
                 deleteFile(imagePath);
             }
 

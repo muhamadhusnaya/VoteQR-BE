@@ -7,4 +7,4 @@ function generateToken(length = 10) {
     return token;
 }
 
-module.exports = generateToken;
+export default generateToken;

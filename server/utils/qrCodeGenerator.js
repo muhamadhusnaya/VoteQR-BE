@@ -1,5 +1,5 @@
-const QRCode = require('qrcode');
-const path = require('path');
+import QRCode from 'qrcode';
+import path from 'path';
 
 async function generateQRCode(token) {
     const filePath = path.join(__dirname, '../uploads/qrcodes', `${token}.png`);
@@ -12,4 +12,4 @@ async function generateQRCode(token) {
     }
 }
 
-module.exports = generateQRCode;
+export default generateQRCode;

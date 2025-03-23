@@ -5,7 +5,7 @@ import tokenRoutes from './routes/tokenRoutes.js';
 import votingHistoryRoutes from './routes/votingRoutes.js';
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 // Middleware
 app.use(cors());

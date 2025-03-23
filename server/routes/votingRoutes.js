@@ -4,7 +4,7 @@ import db from '../models/votingHistoryModel.js';
 const router = express.Router();
 
 // Get all voting history
-router.get('/voting-history', (req, res) => {
+router.get('/', (req, res) => {
     db.all(`SELECT * FROM voting_history ORDER BY createdAt DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ message: 'Gagal mengambil data voting history' });
         res.json(rows);
@@ -12,7 +12,7 @@ router.get('/voting-history', (req, res) => {
 });
 
 // Add new voting data
-router.post('/voting-history', (req, res) => {
+router.post('/', (req, res) => {
     const { username, token, ipPublic } = req.body;
 
     if (!username || !token || !ipPublic) {
@@ -24,7 +24,7 @@ router.post('/voting-history', (req, res) => {
         [username, token, ipPublic],
         function (err) {
             if (err) return res.status(500).json({ message: 'Gagal menambahkan data voting history' });
-            res.json({ id: this.lastID, username, token, ipPublic, createdAt: new Date().toISOString() });
+            res.json({ id: this.lastID, username, token, ipPublic });
         }
     );
 });
