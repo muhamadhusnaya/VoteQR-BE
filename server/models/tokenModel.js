@@ -19,8 +19,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
 db.run(`
     CREATE TABLE IF NOT EXISTS tokens (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        token TEXT UNIQUE,
-        status TEXT DEFAULT 'belum digunakan',
+        token TEXT UNIQUE NOT NULL,
+        status TEXT CHECK(status IN ('Used', 'Not Used')) DEFAULT 'Not Used',
         pathQrcode TEXT,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )

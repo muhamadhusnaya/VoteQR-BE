@@ -19,9 +19,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
 db.run(`
     CREATE TABLE IF NOT EXISTS teams (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        category TEXT,
-        image TEXT,
+        name TEXT NOT NULL,
+        category TEXT CHECK(category IN ('Software', 'Hardware')) NOT NULL,
+        image TEXT, -- Storing as TEXT (JSON serialized)
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )
 `);

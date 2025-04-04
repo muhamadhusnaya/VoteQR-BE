@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon server/server.js",
     "build": "node server/server.js",
+    "reset-db": "node server/resetDatabase.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -13,8 +14,11 @@
     "@tailwindcss/postcss": "^4.0.15",
     "@tailwindcss/vite": "^4.0.15",
     "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.483.0",
     "multer": "^1.4.5-lts.2",
