@@ -4,6 +4,8 @@ import teamRoutes from './routes/teamRoutes.js';
 import tokenRoutes from './routes/tokenRoutes.js';
 import votingHistoryRoutes from './routes/votingRoutes.js';
 import authRoutes from './routes/authRoutes.js'
+import statsRoutes from './routes/statsRoutes.js';
+
 
 const app = express();
 const PORT = 3000;
@@ -18,6 +20,8 @@ app.use('/auth', authRoutes);
 app.use('/api/tokens', tokenRoutes);
 app.use('/api/voting-history', votingHistoryRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/stats', statsRoutes);
+
 
 // API  Reset Database
 app.post("/api/reset-database", async (req, res) => {

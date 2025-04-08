@@ -63,15 +63,16 @@ export function createTables() {
             // Tabel votes
             db.run(`
                 CREATE TABLE IF NOT EXISTS votes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    token_id INTEGER NOT NULL,
-                    team_id INTEGER NOT NULL,
-                    username TEXT,
-                    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
-                    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
-                    UNIQUE (token_id)
-                )
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                token_id INTEGER NOT NULL,
+                team_id INTEGER NOT NULL,
+                username TEXT,
+                ipPublic TEXT,
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (token_id) REFERENCES tokens(id) ON DELETE CASCADE,
+                FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+                UNIQUE (token_id)
+            )
             `, (err) => {
                 if (err) {
                     console.error("❌ Error creating 'votes' table:", err.message);

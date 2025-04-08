@@ -6,11 +6,19 @@ const router = express.Router();
 // GET voting history dengan JOIN ke tabel tokens
 router.get("/", (req, res) => {
     const query = `
-        SELECT v.id, v.username, v.token_id, v.team_id, v.createdAt, t.token as tokenString
+        SELECT 
+            v.id,
+            v.username,
+            v.ipPublic,
+            v.token_id,
+            v.team_id,
+            v.createdAt,
+            t.token AS tokenString
         FROM votes v
         JOIN tokens t ON v.token_id = t.id
         ORDER BY v.createdAt DESC
     `;
+
     db.all(query, [], (err, rows) => {
         if (err) {
             console.error("Error fetching voting history:", err);
@@ -20,67 +28,57 @@ router.get("/", (req, res) => {
     });
 });
 
-// POST voting baru tanpa IP publik
+// POST voting baru dengan validasi IP
 router.post("/", (req, res) => {
-    const { username, teamId, token } = req.body;
+    const { username, teamId, token, ipPublic } = req.body;
 
-    if (!token || !teamId || !username) {
-        return res.status(400).json({ message: "Token, tim, dan nama harus diisi" });
+    if (!token || !teamId || !username || !ipPublic) {
+        return res.status(400).json({ message: "Token, tim, nama, dan IP harus diisi" });
     }
 
-    // Validasi token: pastikan token valid dan status 'Not Used'
+    // Validasi token
     db.get(`SELECT id FROM tokens WHERE token = ? AND status = 'Not Used'`, [token], (err, tokenRow) => {
-        if (err) {
-            console.error("Error validasi token:", err);
-            return res.status(500).json({ message: "Gagal memverifikasi token" });
-        }
-        if (!tokenRow) {
-            return res.status(400).json({ message: "Token tidak valid atau sudah digunakan" });
-        }
+        if (err) return res.status(500).json({ message: "Gagal memverifikasi token" });
+        if (!tokenRow) return res.status(400).json({ message: "Token tidak valid atau sudah digunakan" });
 
         const tokenId = tokenRow.id;
 
-        // Validasi apakah tim ada di database
+        // Validasi tim
         db.get(`SELECT id FROM teams WHERE id = ?`, [teamId], (err, team) => {
-            if (err) {
-                console.error("Error validasi team:", err);
-                return res.status(500).json({ message: "Gagal memvalidasi team" });
-            }
-            if (!team) {
-                return res.status(400).json({ message: "Tim tidak ditemukan!" });
-            }
+            if (err) return res.status(500).json({ message: "Gagal memvalidasi tim" });
+            if (!team) return res.status(400).json({ message: "Tim tidak ditemukan!" });
 
-            // Cek apakah token sudah digunakan untuk voting
-            db.get(`SELECT id FROM votes WHERE token_id = ?`, [tokenId], (err, existingVote) => {
-                if (err) {
-                    console.error("Error checking duplicate vote:", err);
-                    return res.status(500).json({ message: "Gagal mengecek voting sebelumnya" });
-                }
-                if (existingVote) {
-                    return res.status(400).json({ message: "Token ini sudah digunakan untuk voting!" });
-                }
+            // Validasi username dan IP
+            db.all(
+                `SELECT * FROM votes WHERE username = ? OR (username = ? AND ipPublic = ?)`,
+                [username, username, ipPublic],
+                (err, rows) => {
+                    if (err) return res.status(500).json({ message: "Gagal mengecek data voting sebelumnya" });
 
-                // Simpan voting ke database tanpa ipPublic
-                db.run(
-                    `INSERT INTO votes (username, token_id, team_id) VALUES (?, ?, ?)`,
-                    [username, tokenId, teamId],
-                    function (err) {
-                        if (err) {
-                            console.error("Error saat menyimpan voting:", err);
-                            return res.status(500).json({ message: "Gagal menambahkan data voting" });
-                        }
+                    const isUsernameUsed = rows.some(row => row.username === username);
+                    const isUsernameAndIpUsed = rows.some(row => row.username === username && row.ipPublic === ipPublic);
 
-                        // Tandai token sebagai sudah digunakan
-                        db.run(`UPDATE tokens SET status = 'Used' WHERE id = ?`, [tokenId], (err) => {
-                            if (err) {
-                                console.error("Error updating token status:", err);
-                            }
-                        });
-
-                        res.json({ id: this.lastID, username, tokenId, teamId });
+                    if (isUsernameUsed || isUsernameAndIpUsed) {
+                        return res.status(400).json({ message: "Username atau IP sudah pernah digunakan untuk voting!" });
                     }
-                );
-            });
+
+                    // Simpan voting
+                    db.run(
+                        `INSERT INTO votes (username, token_id, team_id, ipPublic) VALUES (?, ?, ?, ?)`,
+                        [username, tokenId, teamId, ipPublic],
+                        function (err) {
+                            if (err) return res.status(500).json({ message: "Gagal menyimpan data voting" });
+
+                            // Update token status
+                            db.run(`UPDATE tokens SET status = 'Used' WHERE id = ?`, [tokenId], (err) => {
+                                if (err) console.error("Gagal memperbarui status token:", err);
+                            });
+
+                            res.json({ id: this.lastID, username, tokenId, teamId, ipPublic });
+                        }
+                    );
+                }
+            );
         });
     });
 });
