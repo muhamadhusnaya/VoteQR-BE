@@ -7,6 +7,7 @@ export const voteHandler = (req, res) => {
         return res.status(400).json({ message: "Token, tim, nama, dan IP harus diisi" });
     }
 
+    username = username.toLowerCase();
     // Validasi 1 & 2
     const validationQuery = `
         SELECT * FROM votes WHERE username = ? OR (username = ? AND ipPublic = ?)
@@ -17,7 +18,6 @@ export const voteHandler = (req, res) => {
             return res.status(500).json({ message: "Gagal memeriksa data voting sebelumnya" });
         }
 
-        // Cek kondisi dari hasil
         const isUsernameUsed = rows.some(row => row.username === username);
         const isUsernameAndIpUsed = rows.some(row => row.username === username && row.ipPublic === ipPublic);
 

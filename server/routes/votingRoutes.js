@@ -30,11 +30,13 @@ router.get("/", (req, res) => {
 
 // POST voting baru dengan validasi IP
 router.post("/", (req, res) => {
-    const { username, teamId, token, ipPublic } = req.body;
+    let { username, teamId, token, ipPublic } = req.body;
 
     if (!token || !teamId || !username || !ipPublic) {
         return res.status(400).json({ message: "Token, tim, nama, dan IP harus diisi" });
     }
+
+    username = username.toLowerCase();
 
     // Validasi token
     db.get(`SELECT id FROM tokens WHERE token = ? AND status = 'Not Used'`, [token], (err, tokenRow) => {
