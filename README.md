@@ -9,6 +9,9 @@
 - run `npm install` to install any dependencies
 - to view the development, run `npm run dev`
 
+## Reset Database
+- to reset database, run `npm run reset-db`
+
 
 ## API Endpoints
 
